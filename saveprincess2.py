@@ -4,11 +4,10 @@
 
 def nextMove(n,x,y,grid):
     #print n
-    for row in grid:
-        print row
+    #for row in grid:
+    #    print row
 
     g = Grid(n, grid)
-    #g.get_bot_coordinates()
     g.bot_coord = (x, y)
     g.get_princess_coordinates()
 
@@ -46,8 +45,8 @@ class Grid(object):
         move = None
         row_diff = self.bot_coord[0] - self.princess_coord[0]
         col_diff = self.bot_coord[1] - self.princess_coord[1]
-        print row_diff
-        print col_diff
+        #print row_diff
+        #print col_diff
 
         if not row_diff == 0:
             if row_diff > 0:
