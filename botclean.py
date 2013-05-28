@@ -1,6 +1,5 @@
 #!/usr/bin/python
 
-from copy import deepcopy
 from Queue import Queue
 # Head ends here
 
