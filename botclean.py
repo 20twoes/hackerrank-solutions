@@ -5,18 +5,12 @@ from Queue import Queue
 # Head ends here
 
 
-class Point(object):
-
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
-
-
 class Node(object):
     
-    def __init__(self, value, coord):
+    def __init__(self, posx, posy, value):
+        self.x = posx
+        self.y = posy
         self.value = value
-        self.coord = coord
         self.state = None
 
     def __repr__(self):
@@ -72,20 +66,16 @@ class Grid(object):
     def __repr__(self):
         return "\n".join([str(i) for i in self.grid]) + "\n"
 
-    def set(self, point, value):
-        self.grid[point.x][point.y] = value
+    def set(self, x, y, value):
+        self.grid[x][y] = value
 
-    def get(self, point):
-        return self.grid[point.x][point.y]
-
-    def __iter__(self):
-        for i in self.iter_with_coord():
-            yield i[1]
+    def get(self, x, y):
+        return self.grid[x][y]
 
     def iter_with_coord(self):
         for x, row in enumerate(self.grid):
             for y, item in enumerate(row):
-                yield (Point(x, y), item)
+                yield (x, y, item)
 
 
 class BFSGrid(Grid, BreadthFirstSearchMixin):
@@ -93,12 +83,12 @@ class BFSGrid(Grid, BreadthFirstSearchMixin):
     def __init__(self, grid):
         super(eval(self.__class__.__name__), self).__init__(grid)
         # Convert to a Node type so we can mark it as queued and examined.
-        for point, value in self.iter_with_coord():
-            self.set(point, Node(value, point))
+        for x, y, value in self.iter_with_coord():
+            self.set(x, y, Node(x, y, value))
 
     def _adjacent_nodes_iter(self, node):
-        x = node.coord.x
-        y = node.coord.y
+        x = node.x
+        y = node.y
 
         # List of coordinates surrounding root.
         #
@@ -121,7 +111,7 @@ class BFSGrid(Grid, BreadthFirstSearchMixin):
 
         for i, j in coord_to_try:
             try:
-                yield self.grid[i][j]
+                yield self.get(i, j)
             except IndexError as e:
                 # Invalid node; we must be on a boundary of the grid.
                 pass
@@ -132,7 +122,8 @@ class Bot(object):
     DUST = 'd'
 
     def __init__(self, posx, posy, board):
-        self.pos = Point(posx, posy)
+        self.x = posx
+        self.y = posy
         self.board = BFSGrid(board)
 
     def _get_direction_from(self, start, end):
@@ -161,7 +152,7 @@ class Bot(object):
         #print self.board
 
         # Clean the dust if we're on it.
-        current_node = self.board.get(self.pos)
+        current_node = self.board.get(self.x, self.y)
         if current_node.value == self.DUST:
             move = 'CLEAN'
 
@@ -171,7 +162,7 @@ class Bot(object):
             for i in self.board.bfs_iter():
                 #print '(%s, %s) = %s' % (i.coord.x, i.coord.y, i.value)
                 if i.value == self.DUST:
-                    move = self._get_direction_from(current_node.coord, i.coord)
+                    move = self._get_direction_from(current_node, i)
                     break
 
         return move
